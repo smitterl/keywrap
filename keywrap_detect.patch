@@ -1,0 +1,71 @@
+diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/keywrap_detect.c linux-4.18.0-221.el8.s390x/arch/s390/crypto/keywrap_detect.c
+--- linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/keywrap_detect.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-4.18.0-221.el8.s390x/arch/s390/crypto/keywrap_detect.c	2020-07-23 10:09:02.327806406 -0400
+@@ -0,0 +1,40 @@
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <asm/cpacf.h>
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Sebastian Mitterle");
++MODULE_DESCRIPTION("Describes wrapping key support for s390x architecture.");
++
++static cpacf_mask_t pckmo_functions;
++
++static int __init keywrap_init(void)
++{
++	if(!cpacf_query(CPACF_PKCMO, &pckmo_functions))
++		printk("PKCMO not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_QUERY))
++		printk("QUERY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_DES_KEY))
++		printk("DES_KEY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_TDES_128_KEY))
++		printk("TDES_128_KEY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_TDES_192_KEY))
++		printk("TDES_192_KEY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_AES_128_KEY))
++		printk("AES_128_KEY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_AES_192_KEY))
++		printk("AES_192_KEY not supported");
++	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_AES_256_KEY))
++		printk("AES_256_KEY not supported");
++	return 0;
++
++}
++
++static void __exit keywrap_exit(void)
++{
++	printk("Unloading module.");
++}
++
++module_init(keywrap_init);
++module_exit(keywrap_exit);
+diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/Makefile linux-4.18.0-221.el8.s390x/arch/s390/crypto/Makefile
+--- linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/Makefile	2020-07-23 10:07:12.507806406 -0400
++++ linux-4.18.0-221.el8.s390x/arch/s390/crypto/Makefile	2020-07-23 10:09:41.727816383 -0400
+@@ -11,6 +11,7 @@ obj-$(CONFIG_CRYPTO_SHA3_512_S390) += sh
+ obj-$(CONFIG_CRYPTO_DES_S390) += des_s390.o
+ obj-$(CONFIG_CRYPTO_AES_S390) += aes_s390.o
+ obj-$(CONFIG_CRYPTO_PAES_S390) += paes_s390.o
++obj-$(CONFIG_s390_KEYWRAP_DETECT) += keywrap_detect.o
+ obj-$(CONFIG_S390_PRNG) += prng.o
+ obj-$(CONFIG_CRYPTO_GHASH_S390) += ghash_s390.o
+ obj-$(CONFIG_CRYPTO_CRC32_S390) += crc32-vx_s390.o
+diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/Kconfig linux-4.18.0-221.el8.s390x/arch/s390/Kconfig
+--- linux-4.18.0-221.el8.s390x.orig/arch/s390/Kconfig	2020-07-23 10:07:12.507806406 -0400
++++ linux-4.18.0-221.el8.s390x/arch/s390/Kconfig	2020-07-23 10:13:14.527836401 -0400
+@@ -189,6 +189,12 @@ config PGTABLE_LEVELS
+ 	int
+ 	default 5
+ 
++config CONFIG_s390_KEYWRAP_DETECT
++	def_tristate m
++	prompt "PKCMO detection test module"
++	---help---
++	  This module determines keywrap support on load.
++
+ source "init/Kconfig"
+ 
+ source "kernel/Kconfig.freezer"
