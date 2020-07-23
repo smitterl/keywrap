@@ -11,8 +11,8 @@ static cpacf_mask_t pckmo_functions;
 
 static int __init keywrap_init(void)
 {
-	if(!cpacf_query(CPACF_PKCMO, &pckmo_functions))
-		printk("PKCMO not supported");
+	if(!cpacf_query(CPACF_PCKMO, &pckmo_functions))
+		printk("PCKMO not supported");
 	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_QUERY))
 		printk("QUERY not supported");
 	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_DES_KEY))

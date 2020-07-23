@@ -15,8 +15,8 @@ diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/keywrap_detect.c lin
 +
 +static int __init keywrap_init(void)
 +{
-+	if(!cpacf_query(CPACF_PKCMO, &pckmo_functions))
-+		printk("PKCMO not supported");
++	if(!cpacf_query(CPACF_PCKMO, &pckmo_functions))
++		printk("PCKMO not supported");
 +	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_QUERY))
 +		printk("QUERY not supported");
 +	if(!cpacf_test_func(&pckmo_functions, CPACF_PCKMO_ENC_DES_KEY))
@@ -49,7 +49,7 @@ diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/crypto/Makefile linux-4.18.
  obj-$(CONFIG_CRYPTO_DES_S390) += des_s390.o
  obj-$(CONFIG_CRYPTO_AES_S390) += aes_s390.o
  obj-$(CONFIG_CRYPTO_PAES_S390) += paes_s390.o
-+obj-$(CONFIG_s390_KEYWRAP_DETECT) += keywrap_detect.o
++obj-$(CONFIG_S390_KEYWRAP_DETECT) += keywrap_detect.o
  obj-$(CONFIG_S390_PRNG) += prng.o
  obj-$(CONFIG_CRYPTO_GHASH_S390) += ghash_s390.o
  obj-$(CONFIG_CRYPTO_CRC32_S390) += crc32-vx_s390.o
@@ -60,7 +60,7 @@ diff -uprN linux-4.18.0-221.el8.s390x.orig/arch/s390/Kconfig linux-4.18.0-221.el
  	int
  	default 5
  
-+config CONFIG_s390_KEYWRAP_DETECT
++config S390_KEYWRAP_DETECT
 +	def_tristate m
 +	prompt "PKCMO detection test module"
 +	---help---
